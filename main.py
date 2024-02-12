@@ -1,4 +1,5 @@
 # Создано d3dparty, лицензия AGPL-3.0, опубликовано на Github в 2024 году
+# FormatFlip v1.0.1 (main)
 #
 # подключаем библиотеки
 # subprocess - для запуска ffmpeg.exe
@@ -52,22 +53,25 @@ class Convert():
         print("Конвертируем...")
         # в конструкции try-except запускаем ffmpeg по пути ffmpegPath и передаем все нужные аргументы
         try:
-            subprocess.run([self.ffmpegPath, "-i", self.inputFile, "-c:v", "copy", "-c:a", "copy", self.outputFile], check=True, stderr=subprocess.PIPE)
+            subprocess.run([self.ffmpegPath, "-i", self.inputFile, "-c:v", "h264", "-c:a", "aac", self.outputFile], check=True, stderr=subprocess.PIPE)
         # если ловим какую-либо ошибку
         except subprocess.CalledProcessError as e:
             # перехватываем stderr поток и выводим её в файл log.txt
             with open("log.txt", 'w') as f:
                 f.write(e.stderr.decode())
-        # проверяем существование выходного файла
-        if os.path.exists(self.outputFile):
-            # ЕСЛИ файл существует, то выводим сообщение
-            print("Выполнено!", "Конвертированный файл сохранен")
-            print(self.outputFile)
+        # проверяем существование файла с ошибками
+        if os.path.exists("log.txt"):
+            # ЕСЛИ файл с ошибкой существует, то выводим сообщение об ошибке
+            print("Произошла ошибка!", "Для полной информации проверьте файл log.txt в директории программы")
+            # в случае ошибки файл, вероятно, битый, поэтому ЕСЛИ файл существует
+            if os.path.exists(self.outputFile):
+                # ТО удаляем его
+                os.system("del \"" + self.outputFile + "\"")
             # оставляем задержку в 5 секунд, чтобы пользователь успел прочитать сообщение
             time.sleep(5)
         else:
-            # ИНАЧЕ выводим сообщение об ошибке
-            print("Произошла ошибка!", "Для полной информации проверьте файл log.txt в директории программы")
+            # ИНАЧЕ выводим сообщение о выполнении
+            print("Выполнено!", "Файл сохранен по пути:", self.outputFile.decode("utf-8"))
             # оставляем задержку в 5 секунд, чтобы пользователь успел прочитать сообщение
             time.sleep(5)
 
